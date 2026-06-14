@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatApp - Real Messenger</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+background: #111b21;
+color: white;
+height: 100vh;
+overflow: hidden;
+}
+
+/* Login */
+.login-screen {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: #111b21;
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 10000;
+}
+
+.login-box {
+background: #202c33;
+padding: 40px;
+border-radius: 16px;
+width: 90%;
+max-width: 400px;
+text-align: center;
+}
+
+.login-box h1 {
+color: #00a884;
+margin-bottom: 10px;
+}
+
+.login-box p {
+color: #8696a0;
+margin-bottom: 30px;
+}
+
+.login-input {
+width: 100%;
+padding: 14px;
+margin: 8px 0;
+border: none;
+border-radius: 8px;
+background: #2a3942;
+color: white;
+font-size: 16px;
+}
+
+.login-btn {
+width: 100%;
+padding: 14px;
+margin: 15px 0;
+border: none;
+border-radius: 8px;
+background: #00a884;
+color: white;
+font-size: 16px;
+font-weight: bold;
+cursor: pointer;
+}
+
+.hidden {
+display: none !important;
+}
+
+/* App */
+.app-container {
+display: flex;
+height: 100vh;
+max-width: 1400px;
+margin: 0 auto;
+}
+
+.sidebar {
+width: 35%;
+min-width: 300px;
+background: #111b21;
+border-right: 1px solid #222e35;
+display: flex;
+flex-direction: column;
+}
+
+.sidebar-header {
+background: #202c33;
+padding: 10px 16px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 60px;
+}
+
+.user-avatar {
+width: 40px;
+height: 40px;
+border-radius: 50%;
+background: #00a884;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+color: white;
+font-weight: bold;
+}
+
+.header-icons {
+display: flex;
+gap: 20px;
+color: #aebac1;
+font-size: 20px;
+}
+
+.header-icons span {
+cursor: pointer;
+}
+
+.search-box {
+background: #111b21;
+padding: 8px 12px;
+border-bottom: 1px solid #222e35;
+}
+
+.search-input {
+width: 100%;
+padding: 8px 12px 8px 40px;
+border: none;
+background: #202c33;
+border-radius: 8px;
+font-size: 14px;
+color: white;
+}
+
+.search-wrapper {
+position: relative;
+}
+
+.search-wrapper::before {
+content: "🔍";
+position: absolute;
+left: 12px;
+top: 50%;
+transform: translateY(-50%);
+font-size: 14px;
+opacity: 0.5;
+}
+
+.chat-list {
+flex: 1;
+overflow-y: auto;
+}
+
+.chat-item {
+display: flex;
+padding: 12px 16px;
+cursor: pointer;
+border-bottom: 1px solid #222e35;
+}
+
+.chat-item:hover {
+background: #202c33;
+}
+
+.chat-item.active {
+background: #2a3942;
+}
+
+.chat-avatar {
+width: 49px;
+height: 49px;
+border-radius: 50%;
+background: #00a884;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+margin-right: 15px;
+color: white;
+}
+
+.chat-info {
+flex: 1;
+min-width: 0;
+}
+
+.chat-header-row {
+display: flex;
+justify-content: space-between;
+margin-bottom: 4px;
+}
+
+.chat-name {
+font-size: 16px;
+font-weight: 500;
+color: #e9edef;
+}
+
+.chat-time {
+font-size: 12px;
+color: #8696a0;
+}
+
+.chat-message {
+font-size: 14px;
+color: #8696a0;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+.unread-badge {
+background: #00a884;
+color: white;
+font-size: 12px;
+padding: 2px 7px;
+border-radius: 10px;
+margin-left: 5px;
+}
+
+/* Chat Area */
+.chat-area {
+flex: 1;
+display: flex;
+flex-direction: column;
+background: #0b141a;
+}
+
+.chat-header {
+background: #202c33;
+padding: 10px 16px;
+display: flex;
+align-items: center;
+border-bottom: 1px solid #222e35;
+height: 60px;
+}
+
+.chat-header-info {
+flex: 1;
+margin-left: 15px;
+}
+
+.chat-header-name {
+font-size: 16px;
+font-weight: 500;
+color: #e9edef;
+}
+
+.chat-header-status {
+font-size: 13px;
+color: #00a884;
+}
+
+.chat-messages {
+flex: 1;
+overflow-y: auto;
+padding: 20px;
+}
+
+.message {
+max-width: 65%;
+margin-bottom: 10px;
+padding: 8px 12px;
+border-radius: 8px;
+font-size: 14px;
+line-height: 1.4;
+word-wrap: break-word;
+}
+
+.message.sent {
+background: #005c4b;
+margin-left: auto;
+border-top-right-radius: 2px;
+color: #e9edef;
+}
+
+.message.received {
+background: #202c33;
+margin-right: auto;
+border-top-left-radius: 2px;
+color: #e9edef;
+}
+
+.message-time {
+font-size: 11px;
+color: #8696a0;
+text-align: right;
+margin-top: 4px;
+}
+
+/* Voice message in chat */
+.voice-msg {
+display: flex;
+align-items: center;
+gap: 10px;
+padding: 5px;
+}
+
+.voice-play {
+width: 35px;
+height: 35px;
+border-radius: 50%;
+background: #00a884;
+border: none;
+color: white;
+font-size: 14px;
+cursor: pointer;
+}
+
+.voice-bar {
+flex: 1;
+height: 4px;
+background: #2a3942;
+border-radius: 2px;
+position: relative;
+}
+
+.voice-fill {
+height: 100%;
+background: #00a884;
+border-radius: 2px;
+width: 0%;
+transition: width 0.3s;
+}
+
+.voice-time {
+font-size: 12px;
+color: #8696a0;
+}
+
+/* Input Area */
+.input-area {
+background: #202c33;
+padding: 10px 16px;
+display: flex;
+align-items: center;
+gap: 15px;
+}
+
+.input-icons {
+color: #8696a0;
+font-size: 24px;
+cursor: pointer;
+}
+
+.message-input {
+flex: 1;
+padding: 10px 15px;
+border: none;
+border-radius: 8px;
+font-size: 15px;
+background: #2a3942;
+color: #e9edef;
+}
+
+.send-btn {
+color: #8696a0;
+font-size: 24px;
+cursor: pointer;
+background: none;
+border: none;
+}
+
+.send-btn.active {
+color: #00a884;
+}
+
+.recording {
+color: #e74c3c;
+animation: blink 1s infinite;
+display: none;
+}
+
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50% { opacity: 0.3; }
+}
+
+/* Empty State */
+.empty-state {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding: 40px;
+}
+
+.empty-state h2 {
+color: #8696a0;
+font-weight: 300;
+}
+
+/* Video Call Overlay */
+.video-overlay {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: #000;
+z-index: 20000;
+display: none;
+flex-direction: column;
+}
+
+.video-overlay.active {
+display: flex;
+}
+
+.video-container {
+flex: 1;
+position: relative;
+}
+
+.video-local {
+position: absolute;
+bottom: 100px;
+right: 20px;
+width: 120px;
+height: 160px;
+background: #333;
+border-radius: 10px;
+object-fit: cover;
+}
+
+.video-remote {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.call-controls {
+display: flex;
+justify-content: center;
+gap: 30px;
+padding: 20px;
+background: rgba(0,0,0,0.8);
+}
+
+.call-btn {
+width: 60px;
+height: 60px;
+border-radius: 50%;
+border: none;
+font-size: 24px;
+cursor: pointer;
+}
+
+.call-btn.end {
+background: #e74c3c;
+color: white;
+}
+
+.call-btn.mute {
+background: #555;
+color: white;
+}
+
+.call-btn.video {
+background: #555;
+color: white;
+}
+
+/* Room creation */
+.room-modal {
+position: fixed;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background: rgba(0,0,0,0.8);
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 15000;
+}
+
+.room-modal.active {
+display: flex;
+}
+
+.room-box {
+background: #202c33;
+padding: 30px;
+border-radius: 16px;
+width: 90%;
+max-width: 350px;
+}
+
+.room-box h3 {
+margin-bottom: 15px;
+color: #00a884;
+}
+
+.room-list {
+max-height: 200px;
+overflow-y: auto;
+margin: 10px 0;
+}
+
+.room-item {
+padding: 10px;
+background: #2a3942;
+margin: 5px 0;
+border-radius: 8px;
+cursor: pointer;
+}
+
+.room-item:hover {
+background: #374045;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+background: #374045;
+border-radius: 3px;
+}
+
+@media (max-width: 900px) {
+.sidebar {
+width: 100%;
+}
+.chat-area {
+position: fixed;
+top: 0;
+right: -100%;
+width: 100%;
+height: 100vh;
+transition: right 0.3s;
+}
+.chat-area.show {
+right: 0;
+}
+}
+</style>
+</head>
+<body>
+
+<!-- Login -->
+<div class="login-screen" id="loginScreen">
+<div class="login-box">
+<h1>💬 ChatApp</h1>
+<p>Real-time messaging with voice & video</p>
+<div id="loginForm">
+<input type="text" class="login-input" id="loginName" placeholder="Your name">
+<button class="login-btn" onclick="login()">Start Chatting</button>
+</div>
+</div>
+</div>
+
+<!-- Room Selection Modal -->
+<div class="room-modal" id="roomModal">
+<div class="room-box">
+<h3>🏠 Choose a Room</h3>
+<div class="room-list" id="roomList"></div>
+<input type="text" class="login-input" id="newRoomName" placeholder="Or create new room...">
+<button class="login-btn" onclick="createRoom()">Create Room</button>
+<button class="login-btn" style="background:#2a3942;margin-top:10px" onclick="closeRoomModal()">Cancel</button>
+</div>
+</div>
+
+<!-- Main App -->
+<div class="app-container" id="mainApp" style="display:none;">
+<!-- Sidebar -->
+<div class="sidebar">
+<div class="sidebar-header">
+<div class="user-avatar" id="userAvatar">👤</div>
+<div class="header-icons">
+<span onclick="showRoomModal()" title="Rooms">🏠</span>
+<span onclick="logout()" title="Logout">🚪</span>
+</div>
+</div>
+<div class="search-box">
+<div class="search-wrapper">
+<input type="text" class="search-input" placeholder="Search" id="searchInput">
+</div>
+</div>
+<div class="chat-list" id="chatList"></div>
+</div>
+
+<!-- Chat Area -->
+<div class="chat-area" id="chatArea">
+<div class="empty-state" id="emptyState">
+<div style="font-size:80px;margin-bottom:20px">💬</div>
+<h2>Welcome to ChatApp</h2>
+<p style="color:#667781">Join a room to start messaging</p>
+</div>
+
+<div class="chat-header" id="chatHeader" style="display:none;">
+<div class="chat-avatar" id="headerAvatar">👥</div>
+<div class="chat-header-info">
+<div class="chat-header-name" id="headerName">Room</div>
+<div class="chat-header-status" id="headerStatus"><span id="userCount">0</span> users online</div>
+</div>
+<div class="header-icons">
+<span onclick="startVoiceCall()" title="Voice call">📞</span>
+<span onclick="startVideoCall()" title="Video call">📹</span>
+</div>
+</div>
+
+<div class="chat-messages" id="chatMessages" style="display:none;"></div>
+
+<div class="input-area" id="inputArea" style="display:none;">
+<span class="input-icons" onclick="toggleEmoji()">😊</span>
+<span class="input-icons" onclick="startVoiceRecord()" id="recordBtn">🎤</span>
+<span class="recording" id="recordingIndicator">🔴 Recording...</span>
+<input type="text" class="message-input" id="messageInput" placeholder="Type a message...">
+<button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+</div>
+</div>
+</div>
+
+<!-- Video Call Overlay -->
+<div class="video-overlay" id="videoOverlay">
+<div class="video-container">
+<video class="video-remote" id="remoteVideo" autoplay></video>
+<video class="video-local" id="localVideo" autoplay muted></video>
+</div>
+<div class="call-controls">
+<button class="call-btn mute" onclick="toggleMute()">🎤</button>
+<button class="call-btn video" onclick="toggleVideo()">📹</button>
+<button class="call-btn end" onclick="endCall()">📞</button>
+</div>
+</div>
+
+<script>
+// ============ STATE ============
+let currentUser = null;
+let currentRoom = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let localStream = null;
+let recordedBlobs = {};
+
+// ============ LOGIN ============
+function login() {
+const name = document.getElementById('loginName').value.trim();
+if (!name) {
+alert('Enter your name!');
+return;
+}
+currentUser = name;
+document.getElementById('loginScreen').style.display = 'none';
+document.getElementById('mainApp').style.display = 'flex';
+document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+showRoomModal();
+}
+
+function logout() {
+location.reload();
+}
+
+// ============ ROOMS ============
+function showRoomModal() {
+document.getElementById('roomModal').classList.add('active');
+loadRooms();
+}
+
+function closeRoomModal() {
+document.getElementById('roomModal').classList.remove('active');
+}
+
+function loadRooms() {
+const rooms = JSON.parse(localStorage.getItem('chatRooms') || '["General", "Gaming", "Music", "Random"]');
+const container = document.getElementById('roomList');
+container.innerHTML = '';
+
+rooms.forEach(room => {
+const div = document.createElement('div');
+div.className = 'room-item';
+div.textContent = '🏠 ' + room;
+div.onclick = () => joinRoom(room);
+container.appendChild(div);
+});
+}
+
+function createRoom() {
+const name = document.getElementById('newRoomName').value.trim();
+if (!name) return;
+
+let rooms = JSON.parse(localStorage.getItem('chatRooms') || '["General", "Gaming", "Music", "Random"]');
+if (!rooms.includes(name)) {
+rooms.push(name);
+localStorage.setItem('chatRooms', JSON.stringify(rooms));
+}
+
+joinRoom(name);
+}
+
+function joinRoom(roomName) {
+currentRoom = roomName;
+closeRoomModal();
+
+// Show chat area
+document.getElementById('emptyState').style.display = 'none';
+document.getElementById('chatHeader').style.display = 'flex';
+document.getElementById('chatMessages').style.display = 'block';
+document.getElementById('inputArea').style.display = 'flex';
+
+document.getElementById('headerName').textContent = roomName;
+updateUserCount();
+
+// Load messages for THIS ROOM ONLY
+loadRoomMessages();
+
+// Update sidebar with active room
+updateSidebar();
+}
+
+function updateSidebar() {
+const container = document.getElementById('chatList');
+container.innerHTML = '';
+
+const rooms = JSON.parse(localStorage.getItem('chatRooms') || '["General", "Gaming", "Music", "Random"]');
+
+rooms.forEach(room => {
+const msgs = JSON.parse(localStorage.getItem('room_' + room) || '[]');
+const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+
+const div = document.createElement('div');
+div.className = 'chat-item' + (room === currentRoom ? ' active' : '');
+div.onclick = () => joinRoom(room);
+
+div.innerHTML = &lt;div class="chat-avatar"&gt;🏠&lt;/div&gt; &lt;div class="chat-info"&gt; &lt;div class="chat-header-row"&gt; &lt;span class="chat-name"&gt;${room}</span>
+<span class="chat-time">${lastMsg ? lastMsg.time : ''}&lt;/span&gt; &lt;/div&gt; &lt;div class="chat-header-row"&gt; &lt;span class="chat-message"&gt;${lastMsg ? lastMsg.text.substring(0, 30) : 'No messages'}</span>
+</div>
+</div>
+`;
+container.appendChild(div);
+});
+}
+
+function updateUserCount() {
+// Simulate user count
+const count = Math.floor(Math.random() * 10) + 2;
+document.getElementById('userCount').textContent = count;
+}
+
+// ============ MESSAGES (PER ROOM) ============
+function loadRoomMessages() {
+const container = document.getElementById('chatMessages');
+container.innerHTML = '';
+
+const msgs = JSON.parse(localStorage.getItem('room_' + currentRoom) || '[]');
+msgs.forEach(msg => displayMessage(msg));
+}
+
+function displayMessage(msg) {
+const container = document.getElementById('chatMessages');
+const isMe = msg.name === currentUser;
+
+const div = document.createElement('div');
+div.className = 'message ' + (isMe ? 'sent' : 'received');
+
+let content = '';
+
+if (msg.type === 'voice') {
+const blobUrl = recordedBlobs[msg.blobId] || msg.audioUrl;
+content = &lt;div class="voice-msg"&gt; &lt;button class="voice-play" onclick="playVoice('${blobUrl}')">▶</button>
+<div class="voice-bar"><div class="voice-fill" style="width:60%"></div></div>
+<span class="voice-time">0:03</span>
+</div>
+`;
+} else {
+content = '<strong>' + msg.name + '</strong><br>' + msg.text;
+}
+
+div.innerHTML = content + '<div class="message-time">' + msg.time + '</div>';
+container.appendChild(div);
+container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage() {
+const input = document.getElementById('messageInput');
+const text = input.value.trim();
+if (!text || !currentRoom) return;
+
+const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+const msg = {
+name: currentUser,
+text: text,
+time: time,
+type: 'text'
+};
+
+// Save to THIS ROOM ONLY
+let msgs = JSON.parse(localStorage.getItem('room_' + currentRoom) || '[]');
+msgs.push(msg);
+localStorage.setItem('room_' + currentRoom, JSON.stringify(msgs));
+
+displayMessage(msg);
+input.value = '';
+updateSidebar();
+
+// Fake reply from someone else
+if (Math.random() > 0.5) {
+setTimeout(() => {
+const replies = ['Nice!', '👍', 'Hello!', 'How are you?', 'Cool!', 'Interesting...'];
+const reply = {
+name: 'User' + Math.floor(Math.random() * 100),
+text: replies[Math.floor(Math.random() * replies.length)],
+time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+type: 'text'
+};
+
+let roomMsgs = JSON.parse(localStorage.getItem('room_' + currentRoom) || '[]');
+roomMsgs.push(reply);
+localStorage.setItem('room_' + currentRoom, JSON.stringify(roomMsgs));
+
+if (document.getElementById('chatMessages').style.display !== 'none') {
+displayMessage(reply);
+updateSidebar();
+}
+}, 2000);
+}
+}
+
+// ============ VOICE MESSAGES ============
+async function startVoiceRecord() {
+if (isRecording) {
+stopRecording();
+return;
+}
+
+try {
+const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+mediaRecorder = new MediaRecorder(stream);
+audioChunks = [];
+
+mediaRecorder.ondataavailable = (e) => {
+audioChunks.push(e.data);
+};
+
+mediaRecorder.onstop = () => {
+const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+const audioUrl = URL.createObjectURL(audioBlob);
+const blobId = 'blob_' + Date.now();
+recordedBlobs[blobId] = audioUrl;
+
+// Send voice message
+const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+const msg = {
+name: currentUser,
+text: 'Voice message',
+time: time,
+type: 'voice',
+blobId: blobId,
+audioUrl: audioUrl
+};
+
+let msgs = JSON.parse(localStorage.getItem('room_' + currentRoom) || '[]');
+msgs.push(msg);
+localStorage.setItem('room_' + currentRoom, JSON.stringify(msgs));
+
+displayMessage(msg);
+updateSidebar();
+
+stream.getTracks().forEach(track => track.stop());
+};
+
+mediaRecorder.start();
+isRecording = true;
+document.getElementById('recordingIndicator').style.display = 'inline';
+document.getElementById('recordBtn').textContent = '⏹';
+
+} catch (err) {
+alert('Microphone access denied or not available');
+}
+}
+
+function stopRecording() {
+if (mediaRecorder && isRecording) {
+mediaRecorder.stop();
+isRecording = false;
+document.getElementById('recordingIndicator').style.display = 'none';
+document.getElementById('recordBtn').textContent = '🎤';
+}
+}
+
+function playVoice(url) {
+const audio = new Audio(url);
+audio.play();
+}
+
+// ============ VIDEO CALLS ============
+async function startVideoCall() {
+try {
+localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+document.getElementById('localVideo').srcObject = localStream;
+document.getElementById('videoOverlay').classList.add('active');
+
+// In a real app, you'd connect to another user via WebRTC
+// For demo, we just show local camera
+alert('Video call started! (Demo mode - showing your camera only. In production, this would connect to another user.)');
+
+} catch (err) {
+alert('Camera access denied or not available');
+}
+}
+
+async function startVoiceCall() {
+try {
+localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+document.getElementById('videoOverlay').classList.add('active');
+document.getElementById('remoteVideo').style.display = 'none';
+
+alert('Voice call started! (Demo mode)');
+
+} catch (err) {
+alert('Microphone access denied');
+}
+}
+
+function endCall() {
+if (localStream) {
+localStream.getTracks().forEach(track => track.stop());
+localStream = null;
+}
+document.getElementById('videoOverlay').classList.remove('active');
+document.getElementById('remoteVideo').style.display = 'block';
+}
+
+function toggleMute() {
+if (localStream) {
+localStream.getAudioTracks().forEach(track => {
+track.enabled = !track.enabled;
+});
+}
+}
+
+function toggleVideo() {
+if (localStream) {
+localStream.getVideoTracks().forEach(track => {
+track.enabled = !track.enabled;
+});
+}
+}
+
+// ============ UTILITIES ============
+function toggleEmoji() {
+const emojis = ['😀', '😂', '🥰', '😎', '🤔', '👍', '❤️', '🔥', '🎉', '👏'];
+const input = document.getElementById('messageInput');
+input.value += emojis[Math.floor(Math.random() * emojis.length)];
+}
+
+document.getElementById('messageInput').addEventListener('keypress', (e) => {
+if (e.key === 'Enter') sendMessage();
+});
+
+document.getElementById('searchInput').addEventListener('input', function() {
+const search = this.value.toLowerCase();
+document.querySelectorAll('.chat-item').forEach(item => {
+const name = item.querySelector('.chat-name').textContent.toLowerCase();
+item.style.display = name.includes(search) ? 'flex' : 'none';
+});
+});
+</script>
+
+</body>
+</html>
